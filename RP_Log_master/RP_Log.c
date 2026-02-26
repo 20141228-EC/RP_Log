@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * File Name          : RP_Log.c
- * Description        : Ring Buffer Log System Implementation for STM32
+ * Description        : Ring Buffer Log System
  ******************************************************************************
  * @attention
  * Copyright (c) 2026 SZU RobotPilots.
@@ -16,8 +16,8 @@
 #include "RP_Log.h"
 #include <stdio.h>
 #include <string.h>
-#include "usart.h"
-#include "stm32f4xx_hal.h"
+// #include "usart.h"
+// #include "stm32f4xx_hal.h"
 
 /* Private define ------------------------------------------------------------*/
 
@@ -143,14 +143,14 @@ static void RP_Log_RttOutput(RP_LogLevel_t level, const char *file, int line, co
         }
     }
 
-    /*颜色前缀*/
+    // 颜色前缀
     if (g_rp_log.config_param.rtt_use_color)
     {
         rtt_len += snprintf((char *)rtt_buf, RP_LOG_ENTRY_MAX_SIZE,
                             "%s", g_level_colors[level]);
     }
 
-    /*时间戳*/
+    // 时间戳
     if (g_rp_log.config_param.use_timestamp)
     {
 #if defined(USE_HAL_DRIVER)
@@ -159,21 +159,21 @@ static void RP_Log_RttOutput(RP_LogLevel_t level, const char *file, int line, co
 #endif
     }
 
-    /*等级和位置*/
+    // 等级和位置
     rtt_len += snprintf((char *)rtt_buf + rtt_len, RP_LOG_ENTRY_MAX_SIZE - rtt_len,
                         "[%s][%s:%d]: ", g_level_names[level], filename, line);
 
-    /*颜色重置*/
+    // 颜色重置
     if (g_rp_log.config_param.rtt_use_color)
     {
         rtt_len += snprintf((char *)rtt_buf + rtt_len, RP_LOG_ENTRY_MAX_SIZE - rtt_len,
                             "%s", RP_LOG_COLOR_RESET);
     }
 
-    /*用户内容*/
+    // 用户内容
     rtt_len += vsnprintf((char *)rtt_buf + rtt_len, RP_LOG_ENTRY_MAX_SIZE - rtt_len, format, args);
 
-    /*溢出保护*/
+    // 溢出保护
     if (rtt_len >= RP_LOG_ENTRY_MAX_SIZE - 2)
     {
         rtt_len = RP_LOG_ENTRY_MAX_SIZE - 3;
@@ -204,7 +204,7 @@ static int RP_Log_Write(RP_Log_t *log, RP_LogLevel_t level, const char *file, in
         return -1;
     }
 
-    /*等级过滤*/
+    // 等级过滤
     switch (log->config_param.output_range)
     {
     case RP_LOG_OUTPUT_FATAL_ONLY:
@@ -248,11 +248,11 @@ static int RP_Log_Write(RP_Log_t *log, RP_LogLevel_t level, const char *file, in
         }
     }
 
-    /*格式化日志内容*/
+    // 格式化日志内容
     uint8_t buffer[RP_LOG_ENTRY_MAX_SIZE];
     int len = 0;
 
-    /*时间戳*/
+    // 时间戳
     if (log->config_param.use_timestamp)
     {
 #if defined(USE_HAL_DRIVER)
@@ -261,34 +261,34 @@ static int RP_Log_Write(RP_Log_t *log, RP_LogLevel_t level, const char *file, in
 #endif
     }
 
-    /*等级和位置*/
+    // 等级和位置
     len += snprintf((char *)buffer + len, RP_LOG_ENTRY_MAX_SIZE - len,
                     "[%s][%s:%d]: ", g_level_names[level], filename, line);
 
-    /*用户内容*/
+    // 用户内容
     va_list args;
     va_start(args, format);
     len += vsnprintf((char *)buffer + len, RP_LOG_ENTRY_MAX_SIZE - len, format, args);
     va_end(args);
 
-    /*溢出保护*/
+    // 溢出保护
     if (len >= RP_LOG_ENTRY_MAX_SIZE - 2)
     {
         len = RP_LOG_ENTRY_MAX_SIZE - 3;
     }
 
-    /*换行*/
+    // 换行
     buffer[len++] = '\r';
     buffer[len++] = '\n';
 
-    /*写入环形缓冲区*/
+    // 写入环形缓冲区
     if (RB_Push(&log->ring_buffer, buffer, (uint16_t)len) != 0)
     {
         return -1;
     }
 
 #if RP_LOG_USE_RTT
-    /*RTT输出*/
+    // RTT输出
     va_start(args, format);
     RP_Log_RttOutput(level, file, line, format, args);
     va_end(args);
@@ -309,7 +309,7 @@ static void RP_Log_Work(RP_Log_t *log)
         return;
     }
 
-    /*取出日志并发送*/
+    // 取出日志并发送
     uint8_t buffer[RP_LOG_ENTRY_MAX_SIZE];
     uint16_t length;
 

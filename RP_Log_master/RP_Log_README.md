@@ -4,7 +4,9 @@
 
 ## 快速开始
 
-1. 实现串口发送函数
+1. 添加 `RP_Log.c RP_Log.h` 文件到工程中
+
+2. 在`RP_Log.c`实现串口发送函数
 ```c
 // 在 RP_Log.c 里实现，或者其他地方重写这个函数
 int RP_Log_Transmit(const uint8_t *data, uint16_t length)
@@ -86,3 +88,7 @@ while (1) {
 - RP_LOG_INFO
 - RP_LOG_DEBUG
 - RP_LOG_TRACE
+
+## 代码架构
+
+![alt text](RP_Log_Program_structure.png)
